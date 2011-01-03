@@ -11,13 +11,13 @@ module Msf
 			Growl_yaml = "#{Msf::Config.get_config_root}/growl.yaml"
 		end
 		
-		
+		# Initialize the Plug-In
 		def initialize(framework, opts)
 			super
 			add_console_dispatcher(GrowlCommandDispatcher)
 		end
 		
-		
+		# Cleanup when the Plug-In unloads
 		def cleanup
 			self.framework.events.remove_session_subscriber(self)
 			remove_console_dispatcher('growl')
@@ -26,48 +26,57 @@ module Msf
 			"growl"
 		end
 		
+		# Sets the description of the Plug-In
 		def desc
 			"Automatically send Twitter Direct Message when sessions are created and closed"
 		end
 		
+		# CommandDispacher Class for the Plug-In
 		class GrowlCommandDispatcher
 			include Msf::Ui::Console::CommandDispatcher
 			
-			@host =  nil
+			@host     =  nil
 			@password =  nil
-			@sticky =  true
+			@source   =  nil
+			@sticky   =  true
 			
+			# Sets what is done when a session is opened
 			def on_session_open(session)
 				print_status("Session received Sending Message to #{@host}")
-				send_message("Session: #{session.sid} IP: #{session.tunnel_peer} Platform:#{session.platform} Type: #{session.type}")
+				send_message("Source: #{@source} Session: #{session.sid} IP: #{session.tunnel_peer} Platform:#{session.platform} Type: #{session.type}")
 				return
 			end
 			
+			# Sets what is done when a session is closed
 			def on_session_close(session,reason = "")
 			
 					print_status("Session: #{session.sid} Type: #{session.type} is shutting down")
-					send_message("Session: #{session.sid} Type: #{session.type} is shutting down")
+					send_message("Source: #{@source} Session: #{session.sid} Type: #{session.type} is shutting down")
 				
 				return
 			end
 			
-			
+			# Sets the name of the Plug-In
 			def name
 				"growl"
 			end
 			
+			# Method for sending a message
 			def send_message(message)
 				@g.notify("Session Notification","Metasploit", message,0,@sticky)
 				return
 			end
 			
+			# Method for reading the YAML File
 			def read_settings
 				read = nil
 				if File.exist?(Growl_yaml)
-					ldconfig = YAML.load_file("#{Growl_yaml}")
-					@host = ldconfig['host']
+					ldconfig  = YAML.load_file("#{Growl_yaml}")
+					@host     = ldconfig['host']
 					@password = ldconfig['password']
-					@sticky = ldconfig['sticky']
+					@source   = ldconfig['source']
+					@sticky   = ldconfig['sticky']
+					
 					read = true
 				else
 					print_error("You must create a YAML File with the options")
@@ -77,6 +86,7 @@ module Msf
 				return read
 			end
 			
+			# Method that defines the commands of the plugin
 			def commands
 				{
 					'growl_help'                     => "Displays help",
@@ -84,6 +94,7 @@ module Msf
 					'growl_save'                     => "Save Settings to YAML File #{Growl_yaml}.",
 					'growl_set_host'                 => "Sets host to send message to.",
 					'growl_set_password'             => "Sets password to use.",
+					'growl_set_source'               => "Sets the source name shown in the messages.",
 					'growl_set_sticky'               => "Sets true or false if the message will be sticky.",
 					'growl_show_parms'               => "Shows currently set parameters."
 					
@@ -100,7 +111,7 @@ module Msf
 				print_status "Starting to monitor sessions to Growl on"
 				if read_settings()
 					self.framework.events.add_session_subscriber(self)
-					@g  = Growl.new("localhost","Metasploit",["Session Notification"],nil,"Newsystem01")
+					@g  = Growl.new(@host,@source,["Session Notification"],nil,@password)
 					print_good("Growl Plugin Started, Monitoring Sessions")
 				else 
 					print_error("Could not set Growl settings.")
@@ -110,9 +121,9 @@ module Msf
 			# Save Parameters to text file
 			def cmd_growl_save
 				print_status("Saving paramters to config file")
-				if @host and @password and @sticky
+				if @host and @password and @sticky and @source
 					config = {'host' => @host, 'password' => @password,
-							'sticky' => @sticky
+							'sticky' => @sticky, 'source' => @source
 					}
 					File.open(Growl_yaml, 'w') do |out|
 						YAML.dump(config, out)
@@ -133,7 +144,7 @@ module Msf
 				end
 			end
 			
-			# Get Consumer Secret
+			# Set Growl Password
 			def cmd_growl_set_password(*args)
 				if args.length > 0
 					print_status("Setting the password to #{args[0]}")
@@ -143,7 +154,7 @@ module Msf
 				end
 			end
 			
-			# Get OATH Token
+			# Set if message will be sticky or not
 			def cmd_growl_set_sticky(*args)
 				if args.length > 0
 					print_status("Setting sticky to #{args[0]}")
@@ -161,14 +172,24 @@ module Msf
 			end
 			
 
-			
+			# Show parameters that will be used
 			def cmd_growl_show_parms
 				print_status("Parameters:")
 				print_good("host #{@host}")
 				print_good("password #{@password}")
 				print_good("sticky #{@sticky}")
+				print_good("source #{@source}")
 			end
 			
+			# Set the source name that will be shown in the messages
+			def cmd_growl_set_source(*args)
+				if args.length > 0
+					print_status("Setting the source to #{args[0]}")
+					@source = args[0]
+				else
+					print_error("Please provide a value")
+				end
+			end
 			
 		end
 		
