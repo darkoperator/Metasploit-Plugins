@@ -7,29 +7,35 @@ module Msf
 	
 	class Plugin::Twitt < Msf::Plugin
 		include Msf::SessionEvent
+		
+		# Checks if the constant is already set, if not it is set
 		if not defined?(Twitter_yaml)
 			Twitter_yaml = "#{Msf::Config.get_config_root}/twitter.yaml"
 		end
 		
-		
+		# Initialize the Class
 		def initialize(framework, opts)
 			super
 			add_console_dispatcher(TwittCommandDispatcher)
 		end
 		
-		
+		# Cleans up the event subscriber on unload
 		def cleanup
 			self.framework.events.remove_session_subscriber(self)
 			remove_console_dispatcher('twitt')
 		end
+		
+		# Sets the name of the Plug-In
 		def name
 			"twitt"
 		end
 		
+		# Sets the description of the Plug-In
 		def desc
 			"Automatically send Twitter Direct Message when sessions are created and closed"
 		end
 		
+		# Twitt Command Dispatcher Class
 		class TwittCommandDispatcher
 			include Msf::Ui::Console::CommandDispatcher
 			
@@ -38,32 +44,36 @@ module Msf
 			@oauth_token =  nil
 			@oauth_token_secret = nil
 			
+			# Action for when a session is created
 			def on_session_open(session)
 				print_status("Session received Sending Message to #{@user}")
-				send_direct("MSFTwitter Session:#{session.sid} IP:#{session.tunnel_peer} Platform:#{session.platform} Type:#{session.type}")
+				send_direct("Source: #{@source} Session: #{session.sid} IP: #{session.tunnel_peer} Platform: #{session.platform} Type: #{session.type}")
 				return
 			end
 			
+			# Action for when the session is closed
 			def on_session_close(session,reason = "")
 				begin
-					print_status("Session:#{session.sid} Type:#{session.type}is shutting down")
-					send_direct("Session:#{session.sid} Type:#{session.type}is shutting down")
+					print_status("Session:#{session.sid} Type:#{session.type} is shutting down")
+					send_direct("Source: #{@source} Session:#{session.sid} Type:#{session.type} is shutting down")
 				rescue
 					return
 				end
 				return
 			end
 			
-			
+			# Name of the Plug-In
 			def name
 				"twitt"
 			end
 			
+			# Method for sending the direct message
 			def send_direct(message)
 				Twitter.direct_message_create(@user, message)
 				return
 			end
 			
+			# Reads and set the valued from a YAML File
 			def read_settings
 				read = nil
 				if File.exist?("#{Twitter_yaml}")
@@ -73,6 +83,7 @@ module Msf
 					@oauth_token = ldconfig['oauth_token']
 					@oauth_token_secret = ldconfig['oauth_token_secret']
 					@user = ldconfig['user']
+					@source = ldconfig['source']
 					read = true
 				else
 					print_error("You must create a YAML File with the options")
@@ -82,6 +93,7 @@ module Msf
 				return read
 			end
 			
+			# Sets the commands for the Plug-In
 			def commands
 				{
 					'twitt_help'                     => "Displays help",
@@ -92,6 +104,7 @@ module Msf
 					'twitt_set_oauth_token'          => "Sets Oauth Token.",
 					'twitt_set_oauth_token_secret'   => "Sets Oauth Token Secret",
 					'twitt_set_user'                 => "Sets User to whom messages will be sent.",
+					'twitt_set_source'               => "Sets Source Name from where the messages are sent.",
 					'twitt_show_parms'               => "Shows currently set parameters."
 					
 				}
@@ -125,7 +138,7 @@ module Msf
 				if @consumer_key and @consumer_secret and @oauth_token and @oauth_token_secret and @user
 					config = {'consumer_key' => @consumer_key, 'consumer_secret' => @consumer_secret,
 							'oauth_token' => @oauth_token, 'oauth_token_secret' => @oauth_token_secret,
-							'user' => @user
+							'user' => @user, 'source' => @source
 					}
 					File.open(Twitter_yaml, 'w') do |out|
 						YAML.dump(config, out)
@@ -186,6 +199,17 @@ module Msf
 				end
 			end
 			
+			# Set Source Name to be included in the messages
+			def cmd_twitt_set_source(*args)
+				if args.length > 0
+					print_status("Setting the source name to #{args[0]}")
+					@source = args[0]
+				else
+					print_error("Please provide a value")
+				end
+			end
+			
+			# Show the parameters set on the Plug-In
 			def cmd_twitt_show_parms
 				print_status("Parameters:")
 				print_good("consumer_key: #{@consumer_key}")
@@ -193,6 +217,7 @@ module Msf
 				print_good("oauth_token: #{@oauth_token}")
 				print_good("oauth_token_secret: #{@oauth_token_secret}")
 				print_good("user: #{@user}")
+				print_good("source: #{@source}")
 			end
 			
 			
