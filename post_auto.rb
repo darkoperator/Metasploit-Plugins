@@ -20,7 +20,6 @@
 # IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 # OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 module Msf
-end
 class Plugin::Postauto < Msf::Plugin
 	class PostautoCommandDispatcher
 		include Msf::Ui::Console::CommandDispatcher
@@ -316,4 +315,5 @@ class Plugin::Postauto < Msf::Plugin
 	def desc
 		"Plugin for Post-Exploitation automation."
 	end
+end
 end
