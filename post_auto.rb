@@ -288,9 +288,9 @@ class Plugin::Postauto < Msf::Plugin
 					session = framework.sessions.get(s.to_i)
 
 					# Check if session is meterpreter and run command.
-					if (s.type == "meterpreter")
+					if (session.type == "meterpreter")
 						print_good("Running command #{command} against session #{s}")
-						s.console.run_single(command)
+						session.console.run_single(command)
 					else
 						print_status("Session #{s} is not a Meterpreter sessions!")
 					end
