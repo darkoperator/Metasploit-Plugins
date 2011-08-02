@@ -43,7 +43,7 @@ class Plugin::Postauto < Msf::Plugin
 		#-------------------------------------------------------------------------------------------
 		def cmd_multi_post(*args)
 			opts = Rex::Parser::Arguments.new(
-				"-s"   => [ true,	"Sessions to run module against. Example <all> or <1,2,3,4>"],
+				"-s"   => [ true,   "Sessions to run module against. Example <all> or <1,2,3,4>"],
 				"-m"   => [ true,   "Module to run against sessions."],
 				"-o"   => [ true,   "Module options."],
 				"-h"   => [ false,  "Command Help"]
@@ -316,5 +316,4 @@ class Plugin::Postauto < Msf::Plugin
 	def desc
 		"Plugin for Post-Exploitation automation."
 	end
-end
 end
