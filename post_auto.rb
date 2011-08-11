@@ -138,6 +138,7 @@ class Plugin::Postauto < Msf::Plugin
 				{"mod" => "windows/gather/credentials/flashfxp", "opt" => nil},
 				{"mod" => "windows/gather/credentials/imail", "opt" => nil},
 				{"mod" => "windows/gather/credentials/outlook", "opt" => nil},
+				{"mod" => "windows/gather/credentials/enum_meebo_pwds", "opt" => nil},
 				{"mod" => "multi/gather/pidgin_cred", "opt" => nil},
 				{"mod" => "multi/gather/filezilla_client_cred", "opt" => nil},
 				{"mod" => "multi/gather/ssh_creds", "opt" => nil},
