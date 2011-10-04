@@ -22,6 +22,7 @@
 module Msf
 class Plugin::Postauto < Msf::Plugin
 	class PostautoCommandDispatcher
+		include Msf::Auxiliary::Report
 		include Msf::Ui::Console::CommandDispatcher
 
 		def name
@@ -44,7 +45,7 @@ class Plugin::Postauto < Msf::Plugin
 		def cmd_multi_cmd(*args)
 			# Define options
 			opts = Rex::Parser::Arguments.new(
-				"-s"   => [ true,	"Comma separated list of essions to run modules against."],
+				"-s"   => [ true,	"Comma separated list ofessions to run modules against."],
 				"-c"   => [ true,	"Shell command to run."],
 				"-p"   => [ true,	"Platform to run the command against. If none given it will run against all."],
 				"-h"   => [ false,  "Command Help"]
@@ -138,6 +139,12 @@ class Plugin::Postauto < Msf::Plugin
 				case opt
 				when "-s"
 					sessions = val
+				when "-h"
+					print_line(opts.usage)
+					return
+				else
+					print_line(opts.usage)
+					return
 				end
 			end
 
@@ -191,6 +198,12 @@ class Plugin::Postauto < Msf::Plugin
 				case opt
 				when "-s"
 					sessions = val
+				when "-h"
+					print_line(opts.usage)
+					return
+				else
+					print_line(opts.usage)
+					return
 				end
 			end
 
