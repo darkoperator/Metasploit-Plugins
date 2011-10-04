@@ -115,26 +115,32 @@ class Plugin::Postauto < Msf::Plugin
 			)
 
 			cred_mods = [
-				{"mod" => "windows/gather/credentials/enum_coreftp_pwds", "opt" => nil},
-				{"mod" => "windows/gather/credentials/enum_flashfxp_pwd", "opt" => nil},
-				{"mod" => "windows/gather/credentials/enum_idm_pwds", "opt" => nil},
-				{"mod" => "windows/gather/credentials/enum_imail_pwds", "opt" => nil},
-				{"mod" => "windows/gather/credentials/enum_mremote_pwds", "opt" => nil},
-				{"mod" => "windows/gather/credentials/enum_nimbuzz_pwds", "opt" => nil},
-				{"mod" => "windows/gather/credentials/enum_outlook_pwds", "opt" => nil},
-				{"mod" => "windows/gather/credentials/enum_smartftp_pwd", "opt" => nil},
-				{"mod" => "windows/gather/credentials/enum_trillian_pwds", "opt" => nil},
-				{"mod" => "windows/gather/credentials/enum_vnc_pw", "opt" => nil},
-				{"mod" => "windows/gather/credentials/enum_winscp_pwds", "opt" => nil},
-				{"mod" => "windows/gather/credentials/wsftp_client_creds", "opt" => nil},
+				{"mod" => "windows/gather/credentials/wsftp_client", "opt" => nil},
+				{"mod" => "windows/gather/credentials/winscp", "opt" => nil},
+				{"mod" => "windows/gather/credentials/windows_autologin", "opt" => nil},
+				{"mod" => "windows/gather/credentials/vnc", "opt" => nil},
+				{"mod" => "windows/gather/credentials/trillian", "opt" => nil},
+				{"mod" => "windows/gather/credentials/total_commander", "opt" => nil},
+				{"mod" => "windows/gather/credentials/smartftp", "opt" => nil},
+				{"mod" => "windows/gather/credentials/outlook", "opt" => nil},
+				{"mod" => "windows/gather/credentials/nimbuzz", "opt" => nil},
+				{"mod" => "windows/gather/credentials/mremote", "opt" => nil},
+				{"mod" => "windows/gather/credentials/imail", "opt" => nil},
+				{"mod" => "windows/gather/credentials/idm", "opt" => nil},
+				{"mod" => "windows/gather/credentials/flashfxp", "opt" => nil},
+				{"mod" => "windows/gather/credentials/filezilla_server", "opt" => nil},
 				{"mod" => "windows/gather/credentials/enum_meebo_pwds", "opt" => nil},
-				{"mod" => "multi/gather/pidgin_cred", "opt" => nil},
-				{"mod" => "multi/gather/filezilla_client_cred", "opt" => nil},
+				{"mod" => "windows/gather/credentials/coreftp", "opt" => nil},
+				{"mod" => "windows/gather/credentials/enum_meebo_pwds", "opt" => nil},
 				{"mod" => "multi/gather/ssh_creds", "opt" => nil},
+				{"mod" => "multi/gather/pidgin_cred", "opt" => nil},
+				{"mod" => "multi/gather/firefox_creds", "opt" => nil},
+				{"mod" => "multi/gather/filezilla_client_cred", "opt" => nil},
 			]
 
 			# Parse options
-			sessions = nil
+			sessions = ""
+		
 			opts.parse(args) do |opt, idx, val|
 				case opt
 				when "-s"
@@ -158,6 +164,7 @@ class Plugin::Postauto < Msf::Plugin
 					session_list = sessions.split(",")
 				end
 				session_list.each do |s|
+					begin
 					if m.session_compatible?(s.to_i)
 						m.datastore['SESSION'] = s.to_i
 						if p['opt']
@@ -171,6 +178,9 @@ class Plugin::Postauto < Msf::Plugin
 							'LocalInput'    => driver.input,
 							'LocalOutput'    => driver.output
 						)
+					end
+					rescue
+						print_error("Could not run post module against sessions #{s}")
 					end
 				end
 			end
@@ -193,7 +203,7 @@ class Plugin::Postauto < Msf::Plugin
 			]
 
 			# Parse options
-			sessions = nil
+			sessions = ""
 			opts.parse(args) do |opt, idx, val|
 				case opt
 				when "-s"
