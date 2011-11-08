@@ -132,6 +132,7 @@ class Plugin::Postauto < Msf::Plugin
 				{"mod" => "windows/gather/credentials/enum_meebo", "opt" => nil},
 				{"mod" => "windows/gather/credentials/coreftp", "opt" => nil},
 				{"mod" => "windows/gather/credentials/imvu", "opt" => nil},
+				{"mod" => "windows/gather/credentials/epo_sql", "opt" => nil},
 				{"mod" => "windows/gather/enum_ie", "opt" => nil},
 				{"mod" => "multi/gather/ssh_creds", "opt" => nil},
 				{"mod" => "multi/gather/pidgin_cred", "opt" => nil},
