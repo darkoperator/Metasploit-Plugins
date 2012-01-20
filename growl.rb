@@ -53,7 +53,7 @@ module Msf
 		class GrowlCommandDispatcher
 			include Msf::Ui::Console::CommandDispatcher
 			
-			@host     =  nil
+			@host	 =  nil
 			@password =  nil
 			@source   =  nil
 			@sticky   =  true
@@ -90,7 +90,7 @@ module Msf
 				read = nil
 				if File.exist?(Growl_yaml)
 					ldconfig  = YAML.load_file("#{Growl_yaml}")
-					@host     = ldconfig['host']
+					@host	 = ldconfig['host']
 					@password = ldconfig['password']
 					@source   = ldconfig['source']
 					@sticky   = ldconfig['sticky']
@@ -107,14 +107,14 @@ module Msf
 			# Method that defines the commands of the plugin
 			def commands
 				{
-					'growl_help'                     => "Displays help",
-					'growl_start'                    => "Start Growl Plugin after saving settings.",
-					'growl_save'                     => "Save Settings to YAML File #{Growl_yaml}.",
-					'growl_set_host'                 => "Sets host to send message to.",
-					'growl_set_password'             => "Sets password to use.",
-					'growl_set_source'               => "Sets the source name shown in the messages.",
-					'growl_set_sticky'               => "Sets true or false if the message will be sticky.",
-					'growl_show_parms'               => "Shows currently set parameters."
+					'growl_help'					 => "Displays help",
+					'growl_start'					=> "Start Growl Plugin after saving settings.",
+					'growl_save'					 => "Save Settings to YAML File #{Growl_yaml}.",
+					'growl_set_host'				 => "Sets host to send message to.",
+					'growl_set_password'			 => "Sets password to use.",
+					'growl_set_source'			   => "Sets the source name shown in the messages.",
+					'growl_set_sticky'			   => "Sets true or false if the message will be sticky.",
+					'growl_show_parms'			   => "Shows currently set parameters."
 					
 				}
 			end

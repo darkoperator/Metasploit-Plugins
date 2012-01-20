@@ -114,16 +114,16 @@ module Msf
 			# Sets the commands for the Plug-In
 			def commands
 				{
-					'twitt_help'                     => "Displays help",
-					'twitt_start'                    => "Start Twitter Plugin after saving settings.",
-					'twitt_save'                     => "Save Settings to YAML File #{Twitter_yaml}.",
-					'twitt_set_consumer_key'         => "Sets Twitter Consumer Key.",
-					'twitt_set_consumer_secret'      => "Sets Consumer Secret.",
-					'twitt_set_oauth_token'          => "Sets Oauth Token.",
+					'twitt_help'					 => "Displays help",
+					'twitt_start'					=> "Start Twitter Plugin after saving settings.",
+					'twitt_save'					 => "Save Settings to YAML File #{Twitter_yaml}.",
+					'twitt_set_consumer_key'		 => "Sets Twitter Consumer Key.",
+					'twitt_set_consumer_secret'	  => "Sets Consumer Secret.",
+					'twitt_set_oauth_token'		  => "Sets Oauth Token.",
 					'twitt_set_oauth_token_secret'   => "Sets Oauth Token Secret",
-					'twitt_set_user'                 => "Sets User to whom messages will be sent.",
-					'twitt_set_source'               => "Sets Source Name from where the messages are sent.",
-					'twitt_show_parms'               => "Shows currently set parameters."
+					'twitt_set_user'				 => "Sets User to whom messages will be sent.",
+					'twitt_set_source'			   => "Sets Source Name from where the messages are sent.",
+					'twitt_show_parms'			   => "Shows currently set parameters."
 					
 				}
 			end

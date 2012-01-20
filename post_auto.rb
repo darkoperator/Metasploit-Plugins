@@ -31,13 +31,13 @@ class Plugin::Postauto < Msf::Plugin
 
 		def commands
 			{
-				'multi_post'         => "Run a post module against specified sessions.",
-				'multi_post_rc'      => "Run resource file with post modules and options against specified sessions.",
-				'multi_meter_cmd'    => "Run a Meterpreter Console Command against specified sessions.",
+				'multi_post'		 => "Run a post module against specified sessions.",
+				'multi_post_rc'	  => "Run resource file with post modules and options against specified sessions.",
+				'multi_meter_cmd'	=> "Run a Meterpreter Console Command against specified sessions.",
 				'multi_meter_cmd_rc' => "Run resource file with Meterpreter Console Commands against specified sessions.",
-				"multi_cmd"          => "Run shell command against several sessions",
-				"sys_creds"          => "Run system password collection modules against specified sessions.",
-				"app_creds"          => "Run application password collection modules against specified sessions."
+				"multi_cmd"		  => "Run shell command against several sessions",
+				"sys_creds"		  => "Run system password collection modules against specified sessions.",
+				"app_creds"		  => "Run application password collection modules against specified sessions."
 
 			}
 		end
@@ -177,8 +177,8 @@ class Plugin::Postauto < Msf::Plugin
 						print_status("")
 						print_status("Running #{p['mod']} against #{s}")
 						m.run_simple(
-							'LocalInput'    => driver.input,
-							'LocalOutput'    => driver.output
+							'LocalInput'	=> driver.input,
+							'LocalOutput'	=> driver.output
 						)
 					end
 					rescue
@@ -239,8 +239,8 @@ class Plugin::Postauto < Msf::Plugin
 						print_status("")
 						print_status("Running #{p['mod']} against #{s}")
 						m.run_simple(
-							'LocalInput'    => driver.input,
-							'LocalOutput'    => driver.output
+							'LocalInput'	=> driver.input,
+							'LocalOutput'	=> driver.output
 						)
 					end
 				end
@@ -299,8 +299,8 @@ class Plugin::Postauto < Msf::Plugin
 						end
 						m.options.validate(m.datastore)
 						m.run_simple(
-							'LocalInput'    => driver.input,
-							'LocalOutput'    => driver.output
+							'LocalInput'	=> driver.input,
+							'LocalOutput'	=> driver.output
 						)
 					else
 						print_error("Session #{s} is not compatible with #{post_mod}")
@@ -376,7 +376,7 @@ class Plugin::Postauto < Msf::Plugin
 							end
 							m.options.validate(m.datastore)
 							m.run_simple(
-								'LocalInput'    => driver.input,
+								'LocalInput'	=> driver.input,
 								'LocalOutput'   => driver.output
 							)
 						else
