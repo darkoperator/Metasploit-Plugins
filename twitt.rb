@@ -22,53 +22,53 @@
 
 require 'twitter'
 module Msf
-	
+
 	class Plugin::Twitt < Msf::Plugin
 		include Msf::SessionEvent
-		
+
 		# Checks if the constant is already set, if not it is set
 		if not defined?(Twitter_yaml)
 			Twitter_yaml = "#{Msf::Config.get_config_root}/twitter.yaml"
 		end
-		
+
 		# Initialize the Class
 		def initialize(framework, opts)
 			super
 			add_console_dispatcher(TwittCommandDispatcher)
 		end
-		
+
 		# Cleans up the event subscriber on unload
 		def cleanup
 			self.framework.events.remove_session_subscriber(self)
 			remove_console_dispatcher('twitt')
 		end
-		
+
 		# Sets the name of the Plug-In
 		def name
 			"twitt"
 		end
-		
+
 		# Sets the description of the Plug-In
 		def desc
 			"Automatically send Twitter Direct Message when sessions are created and closed"
 		end
-		
+
 		# Twitt Command Dispatcher Class
 		class TwittCommandDispatcher
 			include Msf::Ui::Console::CommandDispatcher
-			
+
 			@consumer_key =  nil
 			@consumer_secret =  nil
 			@oauth_token =  nil
 			@oauth_token_secret = nil
-			
+
 			# Action for when a session is created
 			def on_session_open(session)
 				print_status("Session received Sending Message to #{@user}")
 				send_direct("Source: #{@source} Session: #{session.sid} IP: #{session.tunnel_peer} Platform: #{session.platform} Type: #{session.type}")
 				return
 			end
-			
+
 			# Action for when the session is closed
 			def on_session_close(session,reason = "")
 				begin
@@ -79,18 +79,18 @@ module Msf
 				end
 				return
 			end
-			
+
 			# Name of the Plug-In
 			def name
 				"twitt"
 			end
-			
+
 			# Method for sending the direct message
 			def send_direct(message)
 				Twitter.direct_message_create(@user, message)
 				return
 			end
-			
+
 			# Reads and set the valued from a YAML File
 			def read_settings
 				read = nil
@@ -110,7 +110,7 @@ module Msf
 				end
 				return read
 			end
-			
+
 			# Sets the commands for the Plug-In
 			def commands
 				{
@@ -124,15 +124,15 @@ module Msf
 					'twitt_set_user'				 => "Sets User to whom messages will be sent.",
 					'twitt_set_source'			   => "Sets Source Name from where the messages are sent.",
 					'twitt_show_parms'			   => "Shows currently set parameters."
-					
+
 				}
 			end
-			
+
 			# Help Command
 			def cmd_twitt_help
 				puts "Help"
 			end
-			
+
 			# Re-Read YAML file and set Twitter Configuration
 			def cmd_twitt_start
 				print_status "Starting to monitor sessions to Twitt"
@@ -145,11 +145,11 @@ module Msf
 						config.oauth_token_secret = @oauth_token_secret
 					end
 					print_good("Twitter Plugin Started, Monitoring Sessions")
-				else 
+				else
 					print_error("Could not set Twitter settings.")
 				end
 			end
-			
+
 			# Save Parameters to text file
 			def cmd_twitt_save
 				print_status("Saving paramters to config file")
@@ -166,7 +166,7 @@ module Msf
 					print_error("You have not provided all the parameters!")
 				end
 			end
-			
+
 			# Get Consumer Key
 			def cmd_twitt_set_consumer_key(*args)
 				if args.length > 0
@@ -176,7 +176,7 @@ module Msf
 					print_error("Please provide a value")
 				end
 			end
-			
+
 			# Get Consumer Secret
 			def cmd_twitt_set_consumer_secret(*args)
 				if args.length > 0
@@ -186,7 +186,7 @@ module Msf
 					print_error("Please provide a value")
 				end
 			end
-			
+
 			# Get OATH Token
 			def cmd_twitt_set_oauth_token(*args)
 				if args.length > 0
@@ -196,7 +196,7 @@ module Msf
 					print_error("Please provide a value")
 				end
 			end
-			
+
 			# Get Oath Token Secret
 			def cmd_twitt_set_oauth_token_secret(*args)
 				if args.length > 0
@@ -206,7 +206,7 @@ module Msf
 					print_error("Please provide a value")
 				end
 			end
-			
+
 			# Get User to whom Direct Messages Will be Sent to
 			def cmd_twitt_set_user(*args)
 				if args.length > 0
@@ -216,7 +216,7 @@ module Msf
 					print_error("Please provide a value")
 				end
 			end
-			
+
 			# Set Source Name to be included in the messages
 			def cmd_twitt_set_source(*args)
 				if args.length > 0
@@ -226,7 +226,7 @@ module Msf
 					print_error("Please provide a value")
 				end
 			end
-			
+
 			# Show the parameters set on the Plug-In
 			def cmd_twitt_show_parms
 				print_status("Parameters:")
@@ -237,10 +237,10 @@ module Msf
 				print_good("user: #{@user}")
 				print_good("source: #{@source}")
 			end
-			
-			
+
+
 		end
-		
+
 	end
 end
 

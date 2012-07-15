@@ -64,7 +64,7 @@ class Plugin::Postauto < Msf::Plugin
 						else
 							sessions = val.split(",")
 						end
-						
+
 					when "-c"
 						command = val
 					when "-p"
@@ -142,7 +142,7 @@ class Plugin::Postauto < Msf::Plugin
 
 			# Parse options
 			sessions = ""
-		
+
 			opts.parse(args) do |opt, idx, val|
 				case opt
 				when "-s"
