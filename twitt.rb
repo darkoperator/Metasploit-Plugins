@@ -61,11 +61,12 @@ module Msf
 			@consumer_secret =  nil
 			@oauth_token =  nil
 			@oauth_token_secret = nil
+			@twitt_client = nil
 
 			# Action for when a session is created
 			def on_session_open(session)
 				print_status("Session received Sending Message to #{@user}")
-				send_direct("Source: #{@source} Session: #{session.sid} IP: #{session.tunnel_peer} Platform: #{session.platform} Type: #{session.type}")
+				send_direct("Source: #{@source} Session: #{session.sid} IP: #{session.session_host} Peer: #{session.tunnel_peer} Platform: #{session.platform} Type: #{session.type}")
 				return
 			end
 
@@ -87,8 +88,7 @@ module Msf
 
 			# Method for sending the direct message
 			def send_direct(message)
-				Twitter.direct_message_create(@user, message)
-				return
+				returned_message = @twitt_client.direct_message_create(@user, message)
 			end
 
 			# Reads and set the valued from a YAML File
@@ -114,16 +114,18 @@ module Msf
 			# Sets the commands for the Plug-In
 			def commands
 				{
-					'twitt_help'					 => "Displays help",
+					'twitt_help'					=> "Displays help",
 					'twitt_start'					=> "Start Twitter Plugin after saving settings.",
-					'twitt_save'					 => "Save Settings to YAML File #{Twitter_yaml}.",
-					'twitt_set_consumer_key'		 => "Sets Twitter Consumer Key.",
-					'twitt_set_consumer_secret'	  => "Sets Consumer Secret.",
-					'twitt_set_oauth_token'		  => "Sets Oauth Token.",
-					'twitt_set_oauth_token_secret'   => "Sets Oauth Token Secret",
-					'twitt_set_user'				 => "Sets User to whom messages will be sent.",
-					'twitt_set_source'			   => "Sets Source Name from where the messages are sent.",
-					'twitt_show_parms'			   => "Shows currently set parameters."
+					'twitt_stop'					=> "Stop monitoring for new sessions.",
+					'twitt_test'					=> "Send test message to make sure confoguration is working.",
+					'twitt_save'					=> "Save Settings to YAML File #{Twitter_yaml}.",
+					'twitt_set_consumer_key'		=> "Sets Twitter Consumer Key.",
+					'twitt_set_consumer_secret'	  	=> "Sets Consumer Secret.",
+					'twitt_set_oauth_token'		  	=> "Sets Oauth Token.",
+					'twitt_set_oauth_token_secret'  => "Sets Oauth Token Secret",
+					'twitt_set_user'				=> "Sets User to whom messages will be sent.",
+					'twitt_set_source'			   	=> "Sets Source Name from where the messages are sent.",
+					'twitt_show_parms'			   	=> "Shows currently set parameters."
 
 				}
 			end
@@ -138,7 +140,7 @@ module Msf
 				print_status "Starting to monitor sessions to Twitt"
 				if read_settings()
 					self.framework.events.add_session_subscriber(self)
-					Twitter.configure do |config|
+					@twitt_client = Twitter.configure do |config|
 						config.consumer_key = @consumer_key
 						config.consumer_secret = @consumer_secret
 						config.oauth_token = @oauth_token
@@ -148,6 +150,24 @@ module Msf
 				else
 					print_error("Could not set Twitter settings.")
 				end
+			end
+
+			def cmd_twitt_stop
+				print_status("Stopping the monitoring of sessions to Twitt")
+				self.framework.events.remove_session_subscriber(self)
+			end
+
+			def cmd_twitt_test
+				print_status("Sending tests message")
+				read_settings
+				@twitt_client = Twitter.configure do |config|
+					config.consumer_key = @consumer_key
+					config.consumer_secret = @consumer_secret
+					config.oauth_token = @oauth_token
+					config.oauth_token_secret = @oauth_token_secret
+				end
+				send_direct("This is a test Message from your Metasploit console #{::Time.now}")
+				return
 			end
 
 			# Save Parameters to text file
