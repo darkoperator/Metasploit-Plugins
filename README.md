@@ -68,6 +68,7 @@ Project Commands
 
 ## Post Exploitation Automation Commands
 These command aid in the post exploitation tasks across multiple sessions and the automation of actions. 
+
 <pre>
 Postauto Commands
 =================
@@ -81,4 +82,4 @@ Postauto Commands
     multi_post          Run a post module against specified sessions.
     multi_post_rc       Run resource file with post modules and options against specified sessions.
     sys_creds           Run system password collection modules against specified sessions.
-<pre>
+</pre>
